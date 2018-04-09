@@ -67,9 +67,26 @@ namespace EasyODBC.Helpers
         {
             string parameterName = string.Format("{0}_{1}", key, parameterIndex++);
 
+            if(value == null)
+            {
+                cmd.Parameters.AddWithValue(parameterName,DBNull.Value);
+                return "?";
+            }
+
             if ((value as string) != null || (value as IEnumerable) == null)
             {
-                cmd.Parameters.AddWithValue(parameterName, value ?? DBNull.Value);
+                if (value is decimal || value is Decimal
+                || value is Double || value is double
+                || value is float
+                )
+                {
+                    cmd.Parameters.AddWithValue(parameterName, value.ToString().Replace(",","."));
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue(parameterName, value ?? DBNull.Value);
+                }
+
                 return "?";
             }
             else
